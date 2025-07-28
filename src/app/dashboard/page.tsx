@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { getUser } from '@/lib/auth'
+import { useAuth } from '@/components/AuthProvider'
 import { supabase } from '@/lib/supabase'
 
 interface TestResult {
@@ -24,7 +24,8 @@ interface UserProfile {
 }
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<UserProfile | null>(null)
+  const { user: authUser, loading: authLoading, signOut } = useAuth()
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [testResults, setTestResults] = useState<TestResult[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
@@ -37,23 +38,25 @@ export default function DashboardPage() {
   const router = useRouter()
 
   useEffect(() => {
+    if (authLoading) return
+
+    if (!authUser) {
+      router.push('/auth')
+      return
+    }
+
     const loadUserData = async () => {
       try {
-        const currentUser = await getUser()
-        if (!currentUser) {
-          router.push('/auth/login')
-          return
-        }
 
         // Get user profile
         const { data: profile } = await supabase
           .from('users')
           .select('*')
-          .eq('id', currentUser.id)
+          .eq('id', authUser.id)
           .single()
 
         if (profile) {
-          setUser(profile)
+          setUserProfile(profile)
         }
 
         // Get test results
@@ -68,7 +71,7 @@ export default function DashboardPage() {
               title
             )
           `)
-          .eq('user_id', currentUser.id)
+          .eq('user_id', authUser.id)
           .order('completed_at', { ascending: false })
           .limit(10)
 
@@ -76,10 +79,10 @@ export default function DashboardPage() {
           const formattedResults = results.map(result => ({
             ...result,
             passage: {
-              title: result.reading_passages?.title || 'Unknown'
+              title: ((result as any).reading_passages as any)?.title || 'Unknown'
             }
           }))
-          setTestResults(formattedResults as any)
+          setTestResults(formattedResults)
 
           // Calculate stats
           if (results.length > 0) {
@@ -90,7 +93,7 @@ export default function DashboardPage() {
             
             // Get user's recommended difficulty level
             const { data: levelResult } = await supabase
-              .rpc('get_user_difficulty_level', { user_uuid: currentUser.id })
+              .rpc('get_user_difficulty_level', { user_uuid: authUser.id })
 
             const currentLevel = levelResult || 1
 
@@ -115,11 +118,22 @@ export default function DashboardPage() {
     }
 
     loadUserData()
-  }, [router])
+  }, [authUser, authLoading, router])
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
+    await signOut()
     router.push('/')
+  }
+
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">대시보드를 불러오는 중...</p>
+        </div>
+      </div>
+    )
   }
 
   const getDifficultyText = (level: number) => {
@@ -161,14 +175,14 @@ export default function DashboardPage() {
               </Link>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-700">안녕하세요, {user?.name}님</span>
+              <span className="text-gray-700">안녕하세요, {userProfile?.name}님</span>
               <div className="flex items-center space-x-2">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  user?.subscription_status === 'premium' 
+                  userProfile?.subscription_status === 'premium' 
                     ? 'bg-yellow-100 text-yellow-800' 
                     : 'bg-gray-100 text-gray-800'
                 }`}>
-                  {user?.subscription_status === 'premium' ? '프리미엄' : '무료'}
+                  {userProfile?.subscription_status === 'premium' ? '프리미엄' : '무료'}
                 </span>
                 <button
                   onClick={handleLogout}
@@ -322,7 +336,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {user?.subscription_status === 'free' && (
+            {userProfile?.subscription_status === 'free' && (
               <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg shadow p-6">
                 <h3 className="text-lg font-semibold text-yellow-900 mb-2">
                   프리미엄 구독

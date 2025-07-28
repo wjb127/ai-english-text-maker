@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { getUser } from '@/lib/auth'
+import { useAuth } from '@/components/AuthProvider'
 import { supabase } from '@/lib/supabase'
 
 interface Question {
@@ -28,8 +28,8 @@ interface TestResult {
 }
 
 export default function ResultsPage() {
+  const { user: authUser, loading: authLoading } = useAuth()
   const [testResult, setTestResult] = useState<TestResult | null>(null)
-  const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -37,15 +37,15 @@ export default function ResultsPage() {
   const router = useRouter()
 
   useEffect(() => {
+    if (authLoading) return
+
+    if (!authUser) {
+      router.push('/auth?redirect=/results')
+      return
+    }
+
     const checkAuthAndLoadResults = async () => {
       try {
-        const currentUser = await getUser()
-        if (!currentUser) {
-          router.push('/auth/login?redirect=/results')
-          return
-        }
-        
-        setUser(currentUser)
 
         // Get test result from localStorage
         const storedResult = localStorage.getItem('testResult')
@@ -54,27 +54,27 @@ export default function ResultsPage() {
           setTestResult(parsed)
           
           // Save to database
-          await saveTestResult(currentUser.id, parsed)
+          await saveTestResult(authUser.id, parsed)
         } else {
           // If no stored result, redirect to test page
           router.push('/test')
         }
       } catch (error) {
         console.error('Error loading results:', error)
-        router.push('/auth/login?redirect=/results')
+        router.push('/auth?redirect=/results')
       } finally {
         setLoading(false)
       }
     }
 
     checkAuthAndLoadResults()
-  }, [router])
+  }, [authUser, authLoading, router])
 
   const saveTestResult = async (userId: string, result: TestResult) => {
     setSaving(true)
     try {
       // First, save the passage to database if it doesn't exist
-      const { data: existingPassage, error: searchError } = await supabase
+      const { data: existingPassage } = await supabase
         .from('reading_passages')
         .select('id')
         .eq('title', result.passage.title)
@@ -136,7 +136,7 @@ export default function ResultsPage() {
     }
   }
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

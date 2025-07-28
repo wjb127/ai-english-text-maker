@@ -179,7 +179,7 @@ Furthermore, reading fiction can help develop empathy. When we read about charac
   }
 
   const handleLoginPrompt = () => {
-    router.push('/auth/login?redirect=/results')
+    router.push('/auth?redirect=/results')
   }
 
   if (isLoading) {

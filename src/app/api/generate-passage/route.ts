@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const passage = await generateReadingPassage(difficultyLevel)
 
     // Save to database
-    const { data: savedPassage, error: saveError } = await supabase
+    const { error: saveError } = await supabase
       .from('reading_passages')
       .insert([
         {
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
 
     // If no passages found, generate a new one
     if (!passages || passages.length === 0) {
-      const newPassage = await generateReadingPassage(difficultyLevel)
+      const newPassage = await generateReadingPassage(difficultyLevel as 1 | 2 | 3 | 4 | 5)
       
       // Save the generated passage
       const { error: saveError } = await supabase
