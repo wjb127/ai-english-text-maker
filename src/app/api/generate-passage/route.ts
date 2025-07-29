@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateReadingPassage } from '@/lib/claude'
-import { supabase } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,27 +17,31 @@ export async function POST(request: NextRequest) {
     // Generate passage using Claude API
     const passage = await generateReadingPassage(difficultyLevel)
 
-    // Save to database
-    const { error: saveError } = await supabase
-      .from('reading_passages')
-      .insert([
-        {
-          title: passage.title,
-          content: passage.content,
-          difficulty_level: difficultyLevel,
-          translation: passage.translation,
-          key_vocabulary: passage.keyVocabulary,
-          grammar_points: passage.grammarPoints,
-          questions: passage.questions
-        }
-      ])
-      .select()
-      .single()
+    // Save to database only if Supabase is configured
+    if (isSupabaseConfigured()) {
+      const { error: saveError } = await supabase
+        .from('reading_passages')
+        .insert([
+          {
+            title: passage.title,
+            content: passage.content,
+            difficulty_level: difficultyLevel,
+            translation: passage.translation,
+            key_vocabulary: passage.keyVocabulary,
+            grammar_points: passage.grammarPoints,
+            questions: passage.questions
+          }
+        ])
+        .select()
+        .single()
 
-    if (saveError) {
-      console.error('Error saving passage:', saveError)
-      // Return generated passage even if save fails
-      return NextResponse.json(passage)
+      if (saveError) {
+        console.error('Error saving passage:', saveError)
+        // Return generated passage even if save fails
+        return NextResponse.json(passage)
+      }
+    } else {
+      console.warn('Supabase not configured, skipping database save')
     }
 
     return NextResponse.json(passage)
@@ -62,6 +66,13 @@ export async function GET(request: NextRequest) {
         { error: 'Invalid difficulty level. Must be between 1 and 5.' },
         { status: 400 }
       )
+    }
+
+    // If Supabase is not configured, generate a new passage directly
+    if (!isSupabaseConfigured()) {
+      console.warn('Supabase not configured, generating new passage without database lookup')
+      const newPassage = await generateReadingPassage(difficultyLevel as 1 | 2 | 3 | 4 | 5)
+      return NextResponse.json(newPassage)
     }
 
     // Get existing passages from database
