@@ -63,6 +63,13 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "AI독해",
   },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+    viewportFit: "cover",
+  },
 };
 
 export default function RootLayout({
@@ -71,8 +78,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" className="smooth-scroll">
       <head>
+        <meta name="theme-color" content="#3B82F6" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="AI독해" />
+        <meta name="application-name" content="AI독해" />
+        <meta name="msapplication-TileColor" content="#3B82F6" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+        <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        <link rel="mask-icon" href="/icon-192x192.png" color="#3B82F6" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -92,7 +109,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased mobile-text safe-top safe-bottom`}
       >
         <AuthProvider>
           {children}
