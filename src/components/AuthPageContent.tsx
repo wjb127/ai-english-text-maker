@@ -64,31 +64,34 @@ export default function AuthPageContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">인증을 확인하는 중...</p>
+          <p className="text-gray-600 text-sm md:text-base">인증을 확인하는 중...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-8 md:py-12 px-4 sm:px-6 lg:px-8 safe-top safe-bottom">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">AI 영어 독해 연습</h1>
-          <h2 className="mt-6 text-2xl font-semibold text-gray-700">
+        <div className="text-center mb-6 md:mb-8">
+          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <span className="text-white font-bold text-lg">AI</span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">AI 영어 독해 연습</h1>
+          <h2 className="mt-4 md:mt-6 text-xl md:text-2xl font-semibold text-gray-700">
             로그인 / 회원가입
           </h2>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 text-sm md:text-base">
             계속하려면 로그인하거나 새 계정을 만드세요
           </p>
         </div>
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-white py-6 md:py-8 px-4 shadow-lg mobile-card sm:px-6 md:sm:px-10">
           <Auth
             supabaseClient={supabaseClient}
             view="magic_link"
@@ -100,14 +103,37 @@ export default function AuthPageContent() {
                     brand: '#2563eb',
                     brandAccent: '#1d4ed8',
                   },
+                  fonts: {
+                    bodyFontFamily: 'inherit',
+                    buttonFontFamily: 'inherit',
+                    inputFontFamily: 'inherit',
+                    labelFontFamily: 'inherit',
+                  },
+                  fontSizes: {
+                    baseBodySize: '14px',
+                    baseInputSize: '16px',
+                    baseLabelSize: '14px',
+                    baseButtonSize: '16px',
+                  },
+                  borderWidths: {
+                    buttonBorderWidth: '1px',
+                    inputBorderWidth: '1px',
+                  },
+                  radii: {
+                    borderRadiusButton: '12px',
+                    buttonBorderRadius: '12px',
+                    inputBorderRadius: '12px',
+                  },
                 },
               },
               className: {
-                anchor: 'text-blue-600 hover:text-blue-500',
-                button: 'w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
-                input: 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                label: 'block text-sm font-medium text-gray-700',
+                anchor: 'text-blue-600 hover:text-blue-500 text-sm md:text-base',
+                button: 'w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm md:text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 active:scale-98 transition-all duration-200 min-touch-target',
+                input: 'appearance-none block w-full px-3 py-3 border border-gray-300 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-base min-touch-target',
+                label: 'block text-sm md:text-base font-medium text-gray-700 mb-2',
                 message: 'mt-2 text-sm text-red-600',
+                container: 'space-y-4',
+                divider: 'my-6',
               },
             }}
             localization={{
@@ -155,7 +181,7 @@ export default function AuthPageContent() {
             magicLink={true}
           />
           
-          <div className="mt-6 text-xs text-gray-500 text-center">
+          <div className="mt-6 text-xs md:text-sm text-gray-500 text-center">
             로그인 시{' '}
             <a href="/terms" className="text-blue-600 hover:text-blue-500">
               이용약관

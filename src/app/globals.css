@@ -24,3 +24,134 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Mobile Optimization Utilities */
+@layer utilities {
+  /* Touch-friendly minimum tap targets */
+  .min-touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Smooth scrolling for mobile */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Prevent text selection on interactive elements */
+  .no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* iOS safe area support */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Mobile-first spacing */
+  .mobile-px {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .mobile-px {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  /* Better mobile text readability */
+  .mobile-text {
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Mobile button styles */
+  .mobile-btn {
+    min-height: 48px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .mobile-btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Hide scrollbars but keep functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Mobile-optimized card shadows */
+  .mobile-card {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border-radius: 16px;
+  }
+
+  @media (min-width: 768px) {
+    .mobile-card {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      border-radius: 20px;
+    }
+  }
+
+  /* Responsive text sizes */
+  .text-responsive-sm {
+    font-size: 0.875rem;
+  }
+
+  @media (min-width: 768px) {
+    .text-responsive-sm {
+      font-size: 1rem;
+    }
+  }
+
+  .text-responsive-base {
+    font-size: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .text-responsive-base {
+      font-size: 1.125rem;
+    }
+  }
+
+  .text-responsive-lg {
+    font-size: 1.125rem;
+  }
+
+  @media (min-width: 768px) {
+    .text-responsive-lg {
+      font-size: 1.25rem;
+    }
+  }
+}
