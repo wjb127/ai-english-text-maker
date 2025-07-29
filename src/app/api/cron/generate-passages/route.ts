@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateReadingPassage } from '@/lib/claude'
-import { supabase } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +8,15 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('Authorization')
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if Supabase is configured
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({
+        success: false,
+        error: 'Supabase not configured',
+        timestamp: new Date().toISOString()
+      }, { status: 500 })
     }
 
     const results = []
@@ -129,6 +138,7 @@ export async function GET() {
   return NextResponse.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    message: 'Passage generation cron job endpoint is ready'
+    message: 'Passage generation cron job endpoint is ready',
+    supabaseConfigured: isSupabaseConfigured()
   })
 }
