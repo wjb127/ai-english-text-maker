@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateReadingPassage } from '@/lib/claude'
+import { generateReadingPassage, DifficultyLevel } from '@/lib/claude'
 import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify this is a legitimate cron request (you might want to add proper authentication)
+    // Verify this is a legitimate cron request
     const authHeader = request.headers.get('Authorization')
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -13,8 +13,8 @@ export async function POST(request: NextRequest) {
     const results = []
     const errors = []
 
-    // Generate passages for each difficulty level
-    for (let difficulty = 1; difficulty <= 5; difficulty++) {
+    // Generate passages for each difficulty level (1-16)
+    for (let difficulty = 1; difficulty <= 16; difficulty++) {
       try {
         // Check if we need more passages for this difficulty
         const { data: existingPassages, error: countError } = await supabase
@@ -28,14 +28,14 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        // Only generate if we have fewer than 3 passages created today
-        if (existingPassages && existingPassages.length >= 3) {
+        // Only generate if we have fewer than 2 passages created today (to manage API costs)
+        if (existingPassages && existingPassages.length >= 2) {
           results.push(`Difficulty ${difficulty}: Already has ${existingPassages.length} recent passages`)
           continue
         }
 
         // Generate new passage
-        const passage = await generateReadingPassage(difficulty as 1 | 2 | 3 | 4 | 5)
+        const passage = await generateReadingPassage(difficulty as DifficultyLevel)
 
         // Save to database
         const { data: savedPassage, error: saveError } = await supabase
@@ -54,6 +54,22 @@ export async function POST(request: NextRequest) {
           .select('id')
           .single()
 
+        // Log generation for pattern tracking (if passage was saved successfully)
+        if (!saveError && savedPassage && passage.generationMetadata) {
+          await supabase
+            .from('passage_generation_log')
+            .insert([
+              {
+                difficulty_level: difficulty,
+                topic_used: passage.generationMetadata.topic,
+                style_used: passage.generationMetadata.style,
+                perspective_used: passage.generationMetadata.perspective,
+                question_focus_used: passage.generationMetadata.questionFocus,
+                passage_id: savedPassage.id
+              }
+            ])
+        }
+
         if (saveError) {
           console.error(`Error saving passage for difficulty ${difficulty}:`, saveError)
           errors.push(`Difficulty ${difficulty}: Save error - ${saveError.message}`)
@@ -70,15 +86,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Clean old passages (keep only last 50 per difficulty level)
-    for (let difficulty = 1; difficulty <= 5; difficulty++) {
+    // Clean old passages (keep only last 30 per difficulty level)
+    for (let difficulty = 1; difficulty <= 16; difficulty++) {
       try {
         const { data: oldPassages, error: fetchError } = await supabase
           .from('reading_passages')
           .select('id')
           .eq('difficulty_level', difficulty)
           .order('created_at', { ascending: false })
-          .range(50, 1000) // Get passages from 51st onwards
+          .range(30, 1000) // Get passages from 31st onwards
 
         if (fetchError) {
           console.error(`Error fetching old passages for difficulty ${difficulty}:`, fetchError)

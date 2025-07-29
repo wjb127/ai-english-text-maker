@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PWA Icon Generator</title>
+</head>
+<body>
+    <canvas id="canvas" width="512" height="512" style="border:1px solid #ccc;"></canvas>
+    <br><br>
+    <button onclick="generateIcons()">Generate All Icons</button>
+    
+    <script>
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, size, size);
+            
+            // Create gradient background
+            const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+            gradient.addColorStop(0, '#4F46E5');
+            gradient.addColorStop(1, '#1E40AF');
+            
+            // Draw circle background
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw book
+            const bookWidth = size * 0.4;
+            const bookHeight = size * 0.3;
+            const bookX = (size - bookWidth) / 2;
+            const bookY = (size - bookHeight) / 2;
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(bookX, bookY, bookWidth, bookHeight);
+            ctx.strokeStyle = '#dddddd';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(bookX, bookY, bookWidth, bookHeight);
+            
+            // Draw text lines
+            ctx.fillStyle = '#333333';
+            const lineHeight = size * 0.02;
+            const lineSpacing = size * 0.04;
+            for (let i = 0; i < 4; i++) {
+                const lineY = bookY + size * 0.08 + i * lineSpacing;
+                const lineWidth = bookWidth * (0.7 + Math.random() * 0.2);
+                ctx.fillRect(bookX + size * 0.02, lineY, lineWidth, lineHeight);
+            }
+            
+            // Draw AI badge
+            const badgeSize = size * 0.15;
+            const badgeX = bookX + bookWidth - badgeSize/2;
+            const badgeY = bookY - badgeSize/2;
+            
+            ctx.fillStyle = '#10B981';
+            ctx.beginPath();
+            ctx.arc(badgeX, badgeY, badgeSize/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.06}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('AI', badgeX, badgeY);
+        }
+        
+        function generateIcons() {
+            const sizes = [192, 256, 384, 512];
+            
+            sizes.forEach(size => {
+                const canvas = document.getElementById('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                
+                drawIcon(canvas, size);
+                
+                // Download
+                const link = document.createElement('a');
+                link.download = `icon-${size}x${size}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+        
+        // Draw initial icon
+        window.onload = () => drawIcon(document.getElementById('canvas'), 512);
+    </script>
+</body>
+</html>
