@@ -52,7 +52,7 @@ export default function Home() {
               AI 독해 테스트 시작하기
             </Link>
             <p className="text-sm text-gray-500 mt-4">
-              * 무료 체험 후 회원가입으로 결과를 확인하세요
+              * 테스트 완료 후 바로 결과를 확인할 수 있습니다
             </p>
           </div>
 

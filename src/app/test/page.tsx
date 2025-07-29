@@ -245,27 +245,17 @@ Furthermore, reading fiction can help develop empathy. When we read about charac
         <div className="max-w-4xl mx-auto px-4">
           <div className="bg-white rounded-lg shadow-lg p-8">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">로그인이 필요합니다</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">테스트 완료!</h1>
               <p className="text-lg text-gray-600 mb-6">
-                테스트 결과를 확인하고 저장하려면 회원가입 또는 로그인해주세요.
+                테스트 결과를 확인하시겠습니까?
               </p>
-              
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-semibold text-blue-900 mb-2">회원가입 혜택</h3>
-                <ul className="text-blue-800 text-left space-y-2">
-                  <li>• 상세한 테스트 결과 및 해석</li>
-                  <li>• 개인별 맞춤 난이도 추천</li>
-                  <li>• 학습 진도 추적</li>
-                  <li>• 틀린 문제 복습 기능</li>
-                </ul>
-              </div>
               
               <div className="space-y-4">
                 <button
-                  onClick={handleLoginPrompt}
+                  onClick={handleShowResults}
                   className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
                 >
-                  로그인 / 회원가입
+                  테스트 결과 보기
                 </button>
                 
                 <Link 

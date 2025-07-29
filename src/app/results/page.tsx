@@ -37,38 +37,31 @@ export default function ResultsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (authLoading) return
-
-    if (!authUser) {
-      router.push('/auth?redirect=/results')
-      return
-    }
-
-    const checkAuthAndLoadResults = async () => {
+    // Skip auth check for development
+    const loadResults = async () => {
       try {
-
         // Get test result from localStorage
         const storedResult = localStorage.getItem('testResult')
         if (storedResult) {
           const parsed = JSON.parse(storedResult)
           setTestResult(parsed)
           
-          // Save to database
-          await saveTestResult(authUser.id, parsed)
+          // Skip database save for development
+          // await saveTestResult(authUser.id, parsed)
         } else {
           // If no stored result, redirect to test page
           router.push('/test')
         }
       } catch (error) {
         console.error('Error loading results:', error)
-        router.push('/auth?redirect=/results')
+        router.push('/test')
       } finally {
         setLoading(false)
       }
     }
 
-    checkAuthAndLoadResults()
-  }, [authUser, authLoading, router])
+    loadResults()
+  }, [router])
 
   const saveTestResult = async (userId: string, result: TestResult) => {
     setSaving(true)
@@ -136,7 +129,7 @@ export default function ResultsPage() {
     }
   }
 
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -179,17 +172,7 @@ export default function ResultsPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
-        {saving && (
-          <div className="mb-4 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md">
-            결과를 저장하는 중...
-          </div>
-        )}
-        
-        {saved && (
-          <div className="mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-md">
-            ✓ 테스트 결과가 성공적으로 저장되었습니다!
-          </div>
-        )}
+        {/* Removed save status messages for development */}
 
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <div className="text-center mb-8">
@@ -324,10 +307,10 @@ export default function ResultsPage() {
                 새 테스트 시작
               </Link>
               <Link 
-                href="/dashboard"
+                href="/"
                 className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
               >
-                대시보드로 이동
+                홈으로 이동
               </Link>
             </div>
           </div>
